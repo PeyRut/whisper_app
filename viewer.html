@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Secret Message | Whisper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!--
+    Content Security Policy (CSP)
+    -----------------------------
+    CSP is now expected to be implemented via HTTP headers from your server
+    for enhanced security and flexibility. The meta tag has been removed.
+    Please ensure your server sets a 'Content-Security-Policy' header.
+    Example policy (adjust as needed):
+    default-src 'self'; script-src 'self' https://cdn.tailwindcss.com; style-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';
+  -->
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Basic fade-in animation for success state */
+    .fade-in {
+      animation: fadeInAnimation 0.5s ease-in forwards;
+    }
+    @keyframes fadeInAnimation {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Basic notification styling (can be expanded in styles.css) */
+    .notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 20px;
+      border-radius: 6px;
+      color: white;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease, top 0.3s ease;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-size: 0.9rem;
+    }
+    .notification.show {
+      opacity: 1;
+      top: 40px;
+    }
+    .notification.error {
+      background-color: #ef4444; /* Red-500 */
+    }
+    .notification.success { /* If you add success notifications */
+      background-color: #22c55e; /* Green-500 */
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col font-sans antialiased">
+  <!-- Header -->
+  <header class="bg-white shadow-sm p-4 border-b border-gray-200">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="/" class="text-xl font-semibold text-gray-800 hover:text-blue-600 transition-colors">Whisper</a>
+      <nav class="hidden md:flex space-x-6">
+        <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">Home</a>
+        <!-- Example links, adjust as needed -->
+        <!-- <a href="#about" class="text-gray-600 hover:text-blue-600 transition-colors">About</a> -->
+        <!-- <a href="#privacy" class="text-gray-600 hover:text-blue-600 transition-colors">Privacy</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content for Message Viewing -->
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <!-- Message Container -->
+      <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 border border-gray-200/75">
+        <!-- States -->
+        <!-- 1. Loading State -->
+        <div id="loading-state" class="py-10 text-center">
+          <div class="inline-block w-12 h-12 md:w-16 md:h-16">
+            <svg class="animate-spin w-full h-full text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <p class="mt-4 text-gray-600 text-sm md:text-base">Retrieving and decrypting message...</p>
+        </div>
+
+        <!-- 2. Error State - Handle securely -->
+        <div id="error-state" class="py-8 text-center hidden">
+          <div class="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 text-red-500">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-full h-full">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <h2 class="text-xl md:text-2xl font-semibold text-red-700 mb-2">Message Unavailable</h2>
+          <!-- This paragraph will be updated by showErrorState in app.js -->
+          <p id="error-message-text" class="text-gray-600 mb-6 text-sm md:text-base">This message may have expired, been already viewed, or the link is invalid.</p>
+          <a href="/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-md transition-colors text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            Create New Message
+          </a>
+        </div>
+
+        <!-- 3. Success State - Securely display decrypted message -->
+        <div id="success-state" class="hidden">
+          <div class="mb-6 pb-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl md:text-2xl font-semibold text-gray-800">Secure Message</h2>
+              <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full">Decrypted</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">This message has been securely decrypted in your browser.</p>
+          </div>
+
+          <div id="message-content" class="bg-gray-50 p-4 sm:p-5 rounded-lg border border-gray-200 mb-6 min-h-[150px] break-words whitespace-pre-wrap text-gray-700 leading-relaxed prose prose-sm max-w-none">
+            <!-- Decrypted content will be placed here by JavaScript using textContent for security -->
+          </div>
+
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-md">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                  <strong>Security Notice:</strong> This message has been marked as viewed. For your privacy, it will be permanently destroyed by the server and cannot be accessed again.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:justify-end items-center gap-3 sm:gap-4">
+            <button id="close-btn" class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 px-6 rounded-md transition-colors text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
+              Close Message
+            </button>
+            <!-- Optional: Link to create new message -->
+            <!-- <a href="/" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors text-center text-sm md:text-base">
+              Create My Own Message
+            </a> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-white border-t border-gray-200 py-6 mt-12">
+    <div class="container mx-auto px-4">
+      <div class="text-center text-xs sm:text-sm text-gray-500">
+        <p>&copy; 2024 Whisper. All rights reserved.</p>
+        <div class="flex flex-wrap justify-center space-x-3 sm:space-x-4 mt-2">
+          <a href="/" class="hover:text-blue-600 transition-colors">Home</a>
+          <!-- Update these links as per your actual pages -->
+          <!-- <a href="#privacy" class="hover:text-blue-600 transition-colors">Privacy Policy</a> -->
+          <!-- <a href="#terms" class="hover:text-blue-600 transition-colors">Terms of Service</a> -->
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script includes -->
+  <!-- Order matters: crypto.js provides decryptMessage used by app.js -->
+  <!-- ui.js provides showNotification used by app.js -->
+  <script src="crypto.js"></script>
+  <script src="ui.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

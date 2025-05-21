@@ -1,0 +1,105 @@
+/* Custom styles extending Tailwind */
+
+/* Fade-in animation for content */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Message content styling */
+#message-content {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+}
+
+/* Custom scrollbar for message content */
+#message-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+#message-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#message-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+#message-content::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Focus styles */
+button:focus, a:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* Notification */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.notification.error {
+  background-color: #FEE2E2;
+  border-left: 4px solid #EF4444;
+  color: #B91C1C;
+}
+
+.notification.success {
+  background-color: #D1FAE5;
+  border-left: 4px solid #10B981;
+  color: #065F46;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  body {
+    font-size: 15px;
+  }
+  
+  #message-content {
+    padding: 12px;
+  }
+}
+
+/* Print styles - hide unnecessary elements when printing */
+@media print {
+  header, footer, button, .bg-red-50 {
+    display: none !important;
+  }
+  
+  body, main, #message-content {
+    background: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 12pt !important;
+  }
+  
+  #message-content {
+    border: none !important;
+  }
+}
+
+

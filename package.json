@@ -1,0 +1,25 @@
+{
+  "name": "secret-message-app",
+  "version": "1.0.0",
+  "description": "Application to create and view one-time secret messages.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "secret",
+    "message",
+    "one-time"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "csurf": "^1.11.0",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "pg": "^8.11.3" 
+  }
+} 

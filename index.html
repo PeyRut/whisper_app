@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whisper - Anonymous Messaging</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+  <!--
+    Content Security Policy (CSP)
+    -----------------------------
+    CSP is now expected to be implemented via HTTP headers from your server
+    for enhanced security and flexibility. The meta tag has been removed.
+    Please ensure your server sets a 'Content-Security-Policy' header.
+    Example policy for this page (adjust as needed, especially script-src for any new CDNs):
+    default-src 'self'; script-src 'self' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';
+  -->
+
+   <!--
+    CSRF Token
+    ----------
+    The CSRF token is fetched dynamically via JavaScript (see message-service.js and main.js)
+    from the /api/messages/csrf-token endpoint.
+    A static meta tag for CSRF is not used in this setup.
+   -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 border-b border-gray-200">
+      <nav class="container mx-auto flex justify-between items-center">
+        <a href="/" class="text-xl font-semibold text-gray-900">Whisper</a>
+        <div class="flex items-center space-x-4">
+          <a href="#about" class="text-gray-600 hover:text-gray-900">About</a>
+          <a href="#" class="text-gray-600 hover:text-gray-900">Privacy</a>
+          <a href="#" class="text-gray-600 hover:text-gray-900">Terms</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main content -->
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-10 max-w-3xl">
+      <!-- Message Composer View -->
+      <div id="composer-view" class="bg-white shadow rounded-lg p-6 md:p-8">
+        <h1 class="text-2xl font-semibold mb-6">Create a Private Message</h1>
+        <div class="space-y-6">
+          <!-- Message textarea -->
+          <div>
+            <label for="message-content" class="block text-gray-700 mb-2">Your Message</label>
+            <textarea id="message-content"
+                      class="w-full h-48 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Type your message here..."></textarea>
+            <div class="mt-1 text-sm text-gray-500 flex justify-between">
+              <span>This message will be encrypted before sending</span>
+              <span id="char-counter">0 characters</span>
+            </div>
+          </div>
+
+          <!-- Message options -->
+          <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+            <h3 class="font-medium text-gray-700 mb-3">Message Options</h3>
+
+            <div class="space-y-4">
+              <!-- Expiration option -->
+              <div>
+                <label for="expiration-time" class="block text-gray-700 mb-1">Expiration Time</label>
+                <select id="expiration-time"
+                        class="w-full p-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="60">1 Hour</option>
+                  <option value="1440" selected>24 Hours</option>
+                  <option value="10080">7 Days</option>
+                  <option value="custom">Custom...</option>
+                </select>
+              </div>
+
+              <!-- Custom expiration (hidden by default) -->
+              <div id="custom-expiration-container" class="hidden">
+                <label for="custom-expiration" class="block text-gray-700 mb-1">Custom Duration (minutes)</label>
+                <input type="number" id="custom-expiration" min="5" max="10080" value="1440"
+                      class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <div class="mt-1 text-xs text-gray-500">Min: 5 minutes | Max: 7 days (10080 minutes)</div>
+              </div>
+
+              <!-- One-time view option (now selectable) -->
+              <div class="flex items-center">
+                <input type="checkbox" id="one-time-view" checked
+                      class="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="one-time-view" class="ml-2 block text-gray-700">
+                  One-time view only
+                  <span class="text-xs text-gray-500 ml-1">(Message self-destructs after being read)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Create button -->
+          <div class="text-center">
+            <button id="create-link-button"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors w-full md:w-auto">
+              Create Secret Link
+            </button>
+          </div>
+
+          <!-- Brief service description -->
+          <div class="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-md p-3">
+            <p><strong>How it works:</strong> Your message is encrypted right in your browser. We store only the encrypted version - we can't read it. Once the recipient views the message or the expiration time is reached, the message is permanently deleted.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Link Display View (hidden by default) -->
+      <div id="link-view" class="hidden bg-white shadow rounded-lg p-6 md:p-8">
+        <div class="text-center mb-6">
+          <div class="inline-block p-2 rounded-full bg-green-100 text-green-800 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-semibold text-gray-800">Your secret message link is ready!</h2>
+          <p class="text-gray-600 mt-2">Share this link with the intended recipient</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-md border border-gray-200 mb-6">
+          <label for="secret-link" class="block text-gray-700 mb-2 text-sm font-medium">Secret Link</label>
+          <div class="flex">
+            <input type="text" id="secret-link" readonly class="flex-grow p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+            <button id="copy-link-button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-r-md transition-colors">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-yellow-700">
+                <strong>Important:</strong> This link can only be viewed once and will expire after the time you selected. It cannot be recovered after viewing or expiration.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button id="create-new-button" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors">
+            Create Another Message
+          </button>
+        </div>
+      </div>
+
+      <!-- Message View (hidden by default) -->
+      <div id="message-view" class="hidden bg-white shadow rounded-lg p-6 md:p-8">
+        <div id="message-loading" class="text-center py-10">
+          <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+          <p class="mt-4 text-gray-600">Retrieving and decrypting message...</p>
+        </div>
+
+        <div id="message-content-view" class="hidden">
+          <div class="mb-6 pb-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-1">Secure Message</h2>
+            <p class="text-sm text-gray-500">This message will be deleted after you close it</p>
+          </div>
+
+          <div id="decrypted-message" class="bg-gray-50 p-4 rounded-md border border-gray-200 min-h-[150px] mb-6">
+            <!-- Message content will be inserted here -->
+          </div>
+
+          <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-red-700">
+                  <strong>Security Notice:</strong> This message has now been viewed and cannot be accessed again.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button id="create-response-button" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors">
+              Create My Own Message
+            </button>
+          </div>
+        </div>
+
+        <div id="message-error" class="hidden text-center py-8">
+          <div class="inline-block p-2 rounded-full bg-red-100 text-red-800 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-800 mb-2">Message Unavailable</h2>
+          <p class="text-gray-600 mb-6">This message may have expired, been already viewed, or the link is invalid.</p>
+          <button id="create-error-button" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition-colors">
+            Create a New Message
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+      <div class="container mx-auto px-4 text-center text-sm text-gray-600">
+        <p>&copy; 2024 Whisper. All rights reserved.</p>
+        <div class="mt-2">
+          <a href="#" class="text-gray-600 hover:text-gray-900 mx-2">Privacy Policy</a>
+          <a href="#" class="text-gray-600 hover:text-gray-900 mx-2">Terms of Service</a>
+          <a href="#about" class="text-gray-600 hover:text-gray-900 mx-2">About</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="crypto.js"></script>
+  <script src="ui.js"></script>
+  <script src="message-service.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
