@@ -33,10 +33,11 @@ async function getCsrfToken() {
  * @param {number} expirationDurationMinutes - The message expiration time in minutes.
  * @param {string} csrfToken - The CSRF token for the request.
  * @param {boolean} isOneTimeView - Whether the message is one-time view only.
+ * @param {Array} attachments - Array of {filename, type, encryptedData}.
  * @returns {Promise<string>} The message token (used to build the secret link).
  * @throws {Error} If message creation fails.
  */
-async function createMessage(encryptedContentBase64, expirationDurationMinutes, csrfToken, isOneTimeView = true) {
+async function createMessage(encryptedContentBase64, expirationDurationMinutes, csrfToken, isOneTimeView = true, attachments = []) {
   try {
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
@@ -48,6 +49,7 @@ async function createMessage(encryptedContentBase64, expirationDurationMinutes, 
         encrypted_content: encryptedContentBase64,
         expiration_duration_minutes: expirationDurationMinutes,
         is_one_time_view: isOneTimeView,
+        attachments: attachments,
       }),
     });
 

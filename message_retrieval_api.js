@@ -148,7 +148,7 @@ router.get('/:token/content', // Endpoint specific path relative to the router's
 
             // Fetch encrypted_content from message_content table
             const contentQuery = `
-                SELECT encrypted_content
+                SELECT encrypted_content, attachments
                 FROM message_content
                 WHERE token = $1; -- 6. SQL Injection Prevention: Parameterized query
             `;
@@ -164,6 +164,7 @@ router.get('/:token/content', // Endpoint specific path relative to the router's
 
             // Get the encrypted content (which is a Buffer from BYTEA)
             const encryptedContentBuffer = contentResult.rows[0].encrypted_content;
+            const attachments = contentResult.rows[0].attachments || [];
 
             // Commit the transaction - releases the lock and makes the view update permanent
             await client.query('COMMIT');
@@ -174,7 +175,7 @@ router.get('/:token/content', // Endpoint specific path relative to the router's
             // 5. Key Encoding/Handling: Ensure the buffer is correctly converted to base64 string.
             const encryptedContentBase64 = encryptedContentBuffer ? encryptedContentBuffer.toString('base64') : '';
 
-            res.status(200).json({ encryptedContent: encryptedContentBase64 });
+            res.status(200).json({ encryptedContent: encryptedContentBase64, attachments });
 
         } catch (error) {
             // Catch any errors during the process

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Whisper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 border-b border-gray-200">
+      <nav class="container-app mx-auto flex justify-between items-center">
+        <a href="/" class="text-2xl font-semibold text-gray-900">Whisper</a>
+        <div class="flex items-center space-x-4">
+          <a href="about.html" class="text-gray-600 hover:text-gray-900">About</a>
+          <a href="privacy.html" class="text-gray-600 hover:text-gray-900 font-medium">Privacy</a>
+          <a href="terms.html" class="text-gray-600 hover:text-gray-900">Terms</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main content -->
+    <main class="flex-grow container-app py-10 md:py-16">
+      <div class="card space-y-6">
+        <h1 class="text-3xl md:text-4xl font-bold mb-4">Privacy Policy</h1>
+        <p class="text-sm text-text-muted">Last Updated: <span id="last-updated">July 26, 2024</span></p>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">1. Introduction</h2>
+          <p class="text-text-secondary">
+            Welcome to Whisper ("we," "us," or "our"). We are committed to protecting your privacy. 
+            This Privacy Policy explains how we handle information in connection with your use of our 
+            secure messaging service (the "Service"). Our core principle is zero-knowledge encryption, meaning 
+            we are technically unable to access the content of your messages.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">2. Information We Do Not Collect</h2>
+          <p class="text-text-secondary mb-2">
+            Due to the end-to-end encrypted nature of our Service, we DO NOT collect, store, or have access to:
+          </p>
+          <ul class="list-disc list-inside space-y-1 pl-4 text-text-secondary">
+            <li>The content of your encrypted messages.</li>
+            <li>The decryption keys for your messages (these are part of the URL fragment and not sent to our server).</li>
+            <li>Personal identifying information such as your name, email address, IP address (beyond standard server logs for operational purposes, which are anonymized or regularly purged), or phone number, as we do not require user accounts.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">3. Information We Collect (Metadata)</h2>
+          <p class="text-text-secondary mb-2">
+            We collect a minimal amount of metadata necessary for the Service to function:
+          </p>
+          <ul class="list-disc list-inside space-y-1 pl-4 text-text-secondary">
+            <li><strong>Encrypted Message Data:</strong> The encrypted ciphertext of your message is stored temporarily on our servers until it is viewed (for one-time links) or expires.</li>
+            <li><strong>Link Metadata:</strong> This includes the unique token for the message link, the chosen expiration time, the one-time view status, and a timestamp for when a one-time message is viewed (to facilitate its deletion). This data does not reveal message content or sender/receiver identity.</li>
+            <li><strong>CSRF Tokens:</strong> We use CSRF tokens for security purposes to protect against cross-site request forgery attacks during message creation. These are short-lived and not tied to user identity.</li>
+            <li><strong>Operational Logs:</strong> Standard, anonymous server logs may be kept for monitoring service health, security, and abuse prevention (e.g., rate limiting). These logs are regularly purged and do not contain personally identifiable information or message content.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">4. How We Use Information</h2>
+          <p class="text-text-secondary">
+            The limited metadata we collect is used solely to:
+          </p>
+          <ul class="list-disc list-inside space-y-1 pl-4 text-text-secondary">
+            <li>Operate and maintain the Service (e.g., store encrypted messages, enforce expiration and one-time view).</li>
+            <li>Protect the security and integrity of our Service (e.g., CSRF protection, rate limiting).</li>
+            <li>Monitor and analyze aggregate usage of the Service to improve its functionality (e.g., understanding peak load times, popular expiration settings). This analysis is done on anonymized, aggregated data.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">5. Data Security</h2>
+          <p class="text-text-secondary">
+            We implement robust technical and organizational measures to protect the encrypted data and metadata we handle. 
+            This includes HTTPS for all communications, secure server infrastructure, and adherence to security best practices. 
+            However, please remember that no method of transmission over the Internet or electronic storage is 100% secure. 
+            The security of your message content relies on the end-to-end encryption provided by the application and the secrecy of the shared link.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">6. Data Retention</h2>
+          <p class="text-text-secondary">
+            Encrypted messages and their associated metadata are retained on our servers as follows:
+          </p>
+          <ul class="list-disc list-inside space-y-1 pl-4 text-text-secondary">
+            <li><strong>One-Time View Messages:</strong> Permanently deleted shortly after the first successful retrieval and viewing by a recipient.</li>
+            <li><strong>Time-Expired Messages:</strong> Permanently deleted after their specified expiration timestamp is reached.</li>
+            <li><strong>Multi-Use Messages (Not One-Time View):</strong> Permanently deleted after their specified expiration timestamp is reached.</li>
+            <li>Operational logs are regularly purged on a rotating basis (e.g., every 7-30 days).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">7. Your Rights</h2>
+          <p class="text-text-secondary">
+            Given the anonymous and ephemeral nature of our service, traditional data subject rights (like access, rectification, or erasure of personal data) are limited as we do not hold personal data that can be tied to an individual. The primary control you have is over the messages you create, by setting expiration times and choosing one-time view options. Once a message is deleted as per its settings, it is irretrievable.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">8. Third-Party Services</h2>
+          <p class="text-text-secondary">
+            We use Tailwind CSS hosted on a CDN for styling. We do not use any third-party analytics or tracking services that would compromise your privacy by collecting personal data through our service.
+          </p>
+        </section>
+        
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">9. Children's Privacy</h2>
+          <p class="text-text-secondary">
+            Our Service is not directed to individuals under the age of 13 (or a higher age threshold depending on jurisdiction). We do not knowingly collect any information from children.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">10. Changes to This Privacy Policy</h2>
+          <p class="text-text-secondary">
+            We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-xl md:text-2xl font-semibold mb-3">11. Contact Us</h2>
+          <p class="text-text-secondary">
+            If you have any questions about this Privacy Policy, please contact us at: [Your Contact Email or Link to Contact Form - e.g., privacy@whisperapp.example.com]
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-border-color py-8">
+      <div class="container-app text-center text-sm text-text-muted">
+        <p>&copy; <span id="current-year">2024</span> Whisper. All rights reserved.</p>
+        <div class="mt-2 space-x-4">
+          <a href="about.html" class="hover:text-primary-color">About</a>
+          <a href="privacy.html" class="hover:text-primary-color font-medium">Privacy Policy</a>
+          <a href="terms.html" class="hover:text-primary-color">Terms of Service</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script>
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    // You can dynamically set the last updated date too if needed, or keep it static.
+    // document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  </script>
+</body>
+</html> 

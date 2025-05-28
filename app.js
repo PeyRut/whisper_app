@@ -71,6 +71,44 @@ async function fetchAndDecryptMessage(token, key) {
     // Ensure proper output encoding to prevent XSS
     displayDecryptedMessage(decryptedContent);
     
+    // 4. Decrypt and display attachments (if any)
+    if (responseData.attachments && Array.isArray(responseData.attachments) && responseData.attachments.length > 0) {
+      const attachmentsContainer = document.getElementById('attachments-container');
+      if (attachmentsContainer) {
+        attachmentsContainer.innerHTML = '';
+        for (const att of responseData.attachments) {
+          // Decrypt the attachment
+          let decrypted;
+          try {
+            decrypted = await decryptMessage(att.encryptedData, key, true); // true = raw mode
+          } catch (e) {
+            continue; // Skip failed attachments
+          }
+          const blob = new Blob([decrypted], { type: att.type });
+          const url = URL.createObjectURL(blob);
+          let el;
+          if (att.type.startsWith('image/')) {
+            el = document.createElement('img');
+            el.src = url;
+            el.alt = att.filename;
+            el.className = 'max-w-xs max-h-60 my-2 rounded shadow';
+          } else if (att.type.startsWith('video/')) {
+            el = document.createElement('video');
+            el.src = url;
+            el.controls = true;
+            el.className = 'max-w-xs max-h-60 my-2 rounded shadow';
+          } else {
+            el = document.createElement('a');
+            el.href = url;
+            el.download = att.filename;
+            el.textContent = `Download ${att.filename}`;
+            el.className = 'block my-2 text-blue-600 underline';
+          }
+          attachmentsContainer.appendChild(el);
+        }
+      }
+    }
+    
   } catch (error) {
     console.error('Error fetching or decrypting message:', error);
     // Friendlier error for not found (404/410)

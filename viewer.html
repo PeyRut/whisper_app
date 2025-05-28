@@ -61,9 +61,9 @@
       <a href="/" class="text-xl font-semibold text-gray-800 hover:text-blue-600 transition-colors">Whisper</a>
       <nav class="hidden md:flex space-x-6">
         <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">Home</a>
-        <!-- Example links, adjust as needed -->
-        <!-- <a href="#about" class="text-gray-600 hover:text-blue-600 transition-colors">About</a> -->
-        <!-- <a href="#privacy" class="text-gray-600 hover:text-blue-600 transition-colors">Privacy</a> -->
+        <a href="about.html" class="text-gray-600 hover:text-blue-600 transition-colors">About</a>
+        <a href="privacy.html" class="text-gray-600 hover:text-blue-600 transition-colors">Privacy</a>
+        <a href="terms.html" class="text-gray-600 hover:text-blue-600 transition-colors">Terms</a>
       </nav>
     </div>
   </header>
@@ -113,6 +113,7 @@
           <div id="message-content" class="bg-gray-50 p-4 sm:p-5 rounded-lg border border-gray-200 mb-6 min-h-[150px] break-words whitespace-pre-wrap text-gray-700 leading-relaxed prose prose-sm max-w-none">
             <!-- Decrypted content will be placed here by JavaScript using textContent for security -->
           </div>
+          <div id="attachments-container" class="mb-6"></div>
 
           <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-md">
             <div class="flex">
@@ -146,12 +147,12 @@
   <footer class="bg-white border-t border-gray-200 py-6 mt-12">
     <div class="container mx-auto px-4">
       <div class="text-center text-xs sm:text-sm text-gray-500">
-        <p>&copy; 2024 Whisper. All rights reserved.</p>
+        <p>&copy; <span id="current-year-footer-viewer">2024</span> Whisper. All rights reserved.</p>
         <div class="flex flex-wrap justify-center space-x-3 sm:space-x-4 mt-2">
           <a href="/" class="hover:text-blue-600 transition-colors">Home</a>
-          <!-- Update these links as per your actual pages -->
-          <!-- <a href="#privacy" class="hover:text-blue-600 transition-colors">Privacy Policy</a> -->
-          <!-- <a href="#terms" class="hover:text-blue-600 transition-colors">Terms of Service</a> -->
+          <a href="about.html" class="hover:text-blue-600 transition-colors">About</a>
+          <a href="privacy.html" class="hover:text-blue-600 transition-colors">Privacy Policy</a>
+          <a href="terms.html" class="hover:text-blue-600 transition-colors">Terms of Service</a>
         </div>
       </div>
     </div>
@@ -163,5 +164,8 @@
   <script src="crypto.js"></script>
   <script src="ui.js"></script>
   <script src="app.js"></script>
+  <script>
+    document.getElementById('current-year-footer-viewer').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>

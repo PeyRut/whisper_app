@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Whisper - Anonymous Messaging</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles.css">
   <!--
     Content Security Policy (CSP)
     -----------------------------
@@ -31,12 +31,12 @@
   <div class="min-h-screen flex flex-col">
     <!-- Header -->
     <header class="bg-white shadow-sm p-4 border-b border-gray-200">
-      <nav class="container mx-auto flex justify-between items-center">
-        <a href="/" class="text-xl font-semibold text-gray-900">Whisper</a>
+      <nav class="container-app mx-auto flex justify-between items-center">
+        <a href="/" class="text-2xl font-semibold text-gray-900">Whisper</a>
         <div class="flex items-center space-x-4">
-          <a href="#about" class="text-gray-600 hover:text-gray-900">About</a>
-          <a href="#" class="text-gray-600 hover:text-gray-900">Privacy</a>
-          <a href="#" class="text-gray-600 hover:text-gray-900">Terms</a>
+          <a href="about.html" class="text-gray-600 hover:text-gray-900">About</a>
+          <a href="privacy.html" class="text-gray-600 hover:text-gray-900">Privacy</a>
+          <a href="terms.html" class="text-gray-600 hover:text-gray-900">Terms</a>
         </div>
       </nav>
     </header>
@@ -57,6 +57,13 @@
               <span>This message will be encrypted before sending</span>
               <span id="char-counter">0 characters</span>
             </div>
+          </div>
+
+          <!-- Attachments input -->
+          <div>
+            <label for="attachments" class="block text-gray-700 mb-2">Attachments (optional, images/videos, max 5 files, 10MB each)</label>
+            <input type="file" id="attachments" multiple accept="image/*,video/*" class="mb-4" />
+            <div id="attachments-list" class="text-xs text-gray-500"></div>
           </div>
 
           <!-- Message options -->
@@ -210,18 +217,22 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 py-6">
-      <div class="container mx-auto px-4 text-center text-sm text-gray-600">
-        <p>&copy; 2024 Whisper. All rights reserved.</p>
-        <div class="mt-2">
-          <a href="#" class="text-gray-600 hover:text-gray-900 mx-2">Privacy Policy</a>
-          <a href="#" class="text-gray-600 hover:text-gray-900 mx-2">Terms of Service</a>
-          <a href="#about" class="text-gray-600 hover:text-gray-900 mx-2">About</a>
+    <footer class="bg-white border-t border-border-color py-8">
+      <div class="container-app text-center text-sm text-text-muted">
+        <p>&copy; <span id="current-year-footer">2024</span> Whisper. All rights reserved.</p>
+        <div class="mt-2 space-x-4">
+          <a href="about.html" class="hover:text-primary-color">About</a>
+          <a href="privacy.html" class="hover:text-primary-color">Privacy Policy</a>
+          <a href="terms.html" class="hover:text-primary-color">Terms of Service</a>
         </div>
       </div>
     </footer>
   </div>
 
+  <script>
+    document.getElementById('current-year-footer').textContent = new Date().getFullYear();
+  </script>
+  <script src="utils.js"></script>
   <script src="crypto.js"></script>
   <script src="ui.js"></script>
   <script src="message-service.js"></script>

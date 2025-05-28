@@ -6,12 +6,13 @@
  */
 
 /**
- * Decrypts an encrypted message using the provided key
+ * Decrypts an encrypted message or binary data using the provided key
  * @param {string} encryptedBase64 - Base64-encoded encrypted message (IV + Ciphertext + Auth Tag)
  * @param {string} keyString - Hex encoded decryption key from URL fragment
- * @returns {Promise<string>} - The decrypted message as plaintext
+ * @param {boolean} [raw=false] - If true, return ArrayBuffer (for attachments); if false, return string (for text)
+ * @returns {Promise<string|ArrayBuffer>} - The decrypted message as plaintext (string) or ArrayBuffer (binary)
  */
-async function decryptMessage(encryptedBase64, keyString) {
+async function decryptMessage(encryptedBase64, keyString, raw = false) {
   try {
     console.log('Attempting to decrypt message...');
     
@@ -32,11 +33,13 @@ async function decryptMessage(encryptedBase64, keyString) {
     
     const decryptedArrayBuffer = await decryptWithAESGCM(cryptoKey, iv, ciphertextWithTag);
     
-    const decryptedContent = new TextDecoder('utf-8').decode(decryptedArrayBuffer);
-
-    console.log('Message decrypted successfully.');
-
-    return decryptedContent;
+    if (raw) {
+      // Return ArrayBuffer for binary attachments
+      return decryptedArrayBuffer;
+    } else {
+      // Return string for text
+      return new TextDecoder('utf-8').decode(decryptedArrayBuffer);
+    }
     
   } catch (error) {
     console.error('Decryption error:', error.message);
@@ -68,38 +71,40 @@ async function generateEncryptionKey() {
 }
 
 /**
- * Encrypts a plaintext message using AES-GCM with a provided hex key string.
+ * Encrypts a plaintext message or binary data using AES-GCM with a provided hex key string.
  * Prepends a 12-byte IV to the ciphertext.
- * @param {string} plaintext - The message to encrypt.
+ * @param {string|ArrayBuffer} plaintextOrBuffer - The message (string) or binary data (ArrayBuffer) to encrypt.
  * @param {string} keyString - The 64-character hex string representation of the AES-256 key.
+ * @param {boolean} [raw=false] - If true, treat input as ArrayBuffer and output as base64-encoded ArrayBuffer (for attachments).
  * @returns {Promise<string>} - Base64 encoded string (IV + Ciphertext + Auth Tag).
  */
-async function encryptMessage(plaintext, keyString) {
+async function encryptMessage(plaintextOrBuffer, keyString, raw = false) {
   try {
     if (!keyString || typeof keyString !== 'string' || !/^[0-9a-fA-F]{64}$/.test(keyString)) {
-        throw new Error('Invalid encryption key format or length. Key must be a 64-character hex string.');
+      throw new Error('Invalid encryption key format or length. Key must be a 64-character hex string.');
     }
-
     const cryptoKey = await importKey(keyString, ["encrypt"]);
-    
-    const iv = window.crypto.getRandomValues(new Uint8Array(12)); 
-    const encodedPlaintext = new TextEncoder().encode(plaintext);
-    
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    let encoded;
+    if (raw) {
+      // Input is ArrayBuffer
+      encoded = plaintextOrBuffer;
+    } else {
+      // Input is string
+      encoded = new TextEncoder().encode(plaintextOrBuffer);
+    }
     const ciphertextWithTag = await window.crypto.subtle.encrypt(
       {
         name: "AES-GCM",
         iv: iv,
       },
       cryptoKey,
-      encodedPlaintext
+      encoded
     );
-    
     const ivAndCiphertext = new Uint8Array(iv.length + ciphertextWithTag.byteLength);
     ivAndCiphertext.set(iv, 0);
     ivAndCiphertext.set(new Uint8Array(ciphertextWithTag), iv.length);
-    
     return arrayBufferToBase64(ivAndCiphertext.buffer);
-    
   } catch (error) {
     console.error("Encryption error:", error);
     throw new Error("Failed to encrypt message.");
